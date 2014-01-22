@@ -7,10 +7,7 @@ class Client
     @client_id = client_id
     @api_key = api_key
     @timeout_in_seconds = timeout_in_seconds
-    validateArgs
   end
-
-  private
 
   def validateArgs
     if not @client_id.is_a? Integer or @client_id <= 0
@@ -24,6 +21,10 @@ class Client
     if not @api_key.is_a? String
       raise ArgumentError, "Invalid API key: #{@timeout_in_seconds} -- must be a string."
     end
+  end
+
+  def authenticate
+
   end
 
   class UnableToConnectException < RuntimeError
