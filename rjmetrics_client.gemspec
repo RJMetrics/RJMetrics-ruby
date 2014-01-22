@@ -10,4 +10,8 @@ Gem::Specification.new do |s|
                    "lib/rjmetrics-client/client.rb"]
   s.homepage    = 'http://rjmetrics.com'
   s.license     = 'Apache-2.0'
+  s.add_runtime_dependency "rest-client",
+    [">= 1.6.7"]
+  s.add_runtime_dependency "json",
+    [">= 1.7.7"]
 end
