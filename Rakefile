@@ -2,8 +2,19 @@ require 'rake'
 
 task :default => [:build]
 
+desc "Build Gem with development dependencies"
 task :build do
-  `gem uninstall rjmetrics-client`
-  `gem build rjmetrics_client.gemspec`
-  `gem install rjmetrics-client-0.1.0.gem --development`
+  system("gem uninstall rjmetrics-client")
+  system("gem build rjmetrics_client.gemspec")
+  system("gem install rjmetrics-client-0.1.0.gem --development")
+end
+
+desc "Run RSpec unit tests"
+task :test do
+  system("rspec test/client_spec.rb --format nested")
+end
+
+desc "Generate docs"
+task :doc do
+  system("yardoc")
 end
