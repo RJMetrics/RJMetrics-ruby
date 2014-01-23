@@ -4,6 +4,7 @@ VALID_CLIENT_ID = 12
 VALID_API_KEY = "apiKey"
 VALID_TIMEOUT = 5
 SANDBOX_BASE = "https://sandbox-connect.rjmetrics.com/v2"
+API_BASE = "https://connect.rjmetrics.com/v2"
 
 describe Client, "#new" do
   context "with valid arguments" do
@@ -30,19 +31,52 @@ describe Client, "#authenticated" do
   context "with valid credentials" do
     it "will return true" do
       client = Client.new(VALID_CLIENT_ID, VALID_API_KEY, VALID_TIMEOUT)
-      authenticate_table_name = "test"
-      authenticate_data = JSON.parse("{\"keys\":[\"id\"],\"id\":1}")
-      RestClient = double
-      RestClient.stub(:post)
 
-      RestClient.should_receive(:post).with(
+      authenticate_table_name = "test"
+      authenticate_data = {:keys => [:id], :id => 1}
+
+      RestClient = double.stub(:post)
+
+      RestClient.should_receive(:post)
+      .with(
         "#{SANDBOX_BASE}/client/#{VALID_CLIENT_ID}/table/#{authenticate_table_name}/data?apikey=#{VALID_API_KEY}",
         authenticate_data.to_json,
         {:content_type => :json,
           :accept => :json,
-          :timeout => VALID_TIMEOUT}).and_return(true)
+          :timeout => VALID_TIMEOUT})
+        .and_return("{\"code:\" 200, \"message\": \"created\"}")
 
       client.authenticated?.should eq(true)
+    end
+  end
+end
+
+describe Client, "#pushData" do
+  context "with valid arguments" do
+    it "will return a success response per data point" do
+      client = Client.new(VALID_CLIENT_ID, VALID_API_KEY, VALID_TIMEOUT)
+
+      data = [{:keys => [:id], :id =>1}, {:keys => [:id], :id =>1}, {:keys => [:id], :id =>1}]
+      table_name = "table"
+
+      RestClient = double.stub(:post)
+
+      RestClient.should_receive(:post)
+      .with(
+        "#{API_BASE}/client/#{VALID_CLIENT_ID}/table/#{table_name}/data?apikey=#{VALID_API_KEY}",
+        data[0].to_json,
+        {:content_type => :json,
+          :accept => :json,
+          :timeout => VALID_TIMEOUT})
+        .exactly(3).times
+        .and_return({:code => 200, :message => "created"}.to_json)
+
+      client.pushData(table_name, data).should eq(Array.new(3, {:code => 200, :message => "created"}.to_json))
+    end
+  end
+
+  context "with invalid arguments" do
+    it "will return raise an Error" do
     end
   end
 end

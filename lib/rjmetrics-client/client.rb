@@ -14,7 +14,7 @@ class Client
   end
 
   def authenticated?
-    test_data = JSON.parse("[{\"keys\":[\"id\"],\"id\":1}]")
+    test_data = {:keys => [:id], :id => 1}
     begin
       pushData("test", test_data, SANDBOX_BASE)
     rescue InvalidRequestException
