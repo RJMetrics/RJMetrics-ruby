@@ -14,4 +14,6 @@ Gem::Specification.new do |s|
     [">= 1.6.7"]
   s.add_runtime_dependency "json",
     [">= 1.7.7"]
+  s.add_development_dependency "rspec",
+    ["> 0"]
 end

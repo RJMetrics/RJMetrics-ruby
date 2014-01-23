@@ -7,7 +7,10 @@ class RJMetricsClient
       raise Client::UnableToConnectException, "Connection failed. Please double check your credentials."
     end
   end
+
+  def pushData(table_name, data)
+    @client.pushData(table_name, data)
+  end
 end
 
 require 'rjmetrics-client/client'
-
