@@ -24,7 +24,7 @@ class Client
   end
 
   def pushData(table_name, data, url = API_BASE)
-    validatePushDataArgs(table_name, data)
+    validatePushDataArgs(table_name, data, url)
 
     if not data.is_a? Array
       data = Array.[](data)
@@ -49,13 +49,17 @@ class Client
     end
   end
 
-  def validatePushDataArgs(table_name, data)
+  def validatePushDataArgs(table_name, data, url)
     if not data.is_a? Hash and not data.is_a? Array
       raise ArgumentError, "Invalid data -- must be a valid Ruby Hash or Array."
     end
 
     if not table_name.is_a? String
-      raise ArgumentError, "Invalid table name: '#{$table}' -- must be a string."
+      raise ArgumentError, "Invalid table name: '#{table_name}' -- must be a string."
+    end
+
+    if not url.is_a? String
+      raise ArgumentError, "Invalid url: '#{url}' -- must be a string."
     end
   end
 

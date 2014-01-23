@@ -77,6 +77,17 @@ describe Client, "#pushData" do
 
   context "with invalid arguments" do
     it "will return raise an Error" do
+      valid_data = {:keys => [:id], :id => 1}
+      invalid_datas = ["string", 5, nil]
+      valid_table_name = "table"
+      invalid_table_names = [["name"], 5, {:name => "table_name"}, nil]
+      invalid_urls = [5, ["url"], {:url => "url"}]
+
+      client = Client.new(VALID_CLIENT_ID, VALID_API_KEY)
+
+      invalid_datas.map { |data_point| expect{ client.pushData(valid_table_name, data_point) }.to raise_error(ArgumentError) }
+      invalid_table_names.map { |table_name| expect{ client.pushData(table_name, valid_data) }.to raise_error(ArgumentError) }
+      invalid_urls.map { |url| expect{ client.pushData(valid_table_name, valid_data, url) }.to raise_error(ArgumentError) }
     end
   end
 end
