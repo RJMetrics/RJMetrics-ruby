@@ -8,6 +8,11 @@ class RJMetricsClient
     end
   end
 
+  # Sends data to RJMetrics Data Import API.
+  #
+  # @param table_name [String] the table name you wish to store the data
+  # @param data [Hashamp] or Array of Hashmaps of data points that will get sent
+  # @return [Array] results of each request to RJMetrics Data Import API
   def pushData(table_name, data)
     @client.pushData(table_name, data)
   end

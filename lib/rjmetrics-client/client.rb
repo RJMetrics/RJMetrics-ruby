@@ -3,9 +3,16 @@ require 'json'
 
 class Client
 
+ # default RJMetrics Data Import API url
  API_BASE = "https://connect.rjmetrics.com/v2"
+ # RJMetrics Sandbox API url
  SANDBOX_BASE = "https://sandbox-connect.rjmetrics.com/v2"
 
+  # Constructs a Client instance if it receives valid arguments or will raise an ArgumentError.
+  #
+  # @param client_id [Integer] your RJMetrics Client ID
+  # @param api_key [String] your RJMetrics API Key
+  # @param timeout_in_seconds [Integer] seconds to wait for API responses or nil
   def initialize(client_id, api_key, timeout_in_seconds = 10)
     validateConstructorArgs(client_id, api_key, timeout_in_seconds)
     @client_id = client_id
@@ -13,6 +20,7 @@ class Client
     @timeout_in_seconds = timeout_in_seconds
   end
 
+  # Checks if the provided Client ID and API Key are valid credentials by requestin from the RJMetrics API Sandbox.
   def authenticated?
     test_data = {:keys => [:id], :id => 1}
     begin
@@ -23,6 +31,12 @@ class Client
     return true
   end
 
+  # Sends data to RJMetrics Data Import API.
+  #
+  # @param table_name [String] the table name you wish to store the data
+  # @param data [Hashamp] or Array of Hashmaps of data points that will get sent
+  # @param url [String] Import API url or nil
+  # @return [Array] results of each request to RJMetrics Data Import API
   def pushData(table_name, data, url = API_BASE)
     validatePushDataArgs(table_name, data, url)
 

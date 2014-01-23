@@ -16,4 +16,6 @@ Gem::Specification.new do |s|
     [">= 1.7.7"]
   s.add_development_dependency "rspec",
     ["> 0"]
+  s.add_development_dependency "yard",
+    ["> 0"]
 end
