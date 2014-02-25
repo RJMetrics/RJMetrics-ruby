@@ -1,5 +1,5 @@
-require "rjmetrics-client/client"
-client = Client.new(0, "your-api-key")
+require "rjmetrics_client"
+client = RJMetricsClient.new(0, "your-api-key")
 
 # let's define some fake users
 fake_users = [
