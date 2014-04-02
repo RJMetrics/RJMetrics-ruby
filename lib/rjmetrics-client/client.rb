@@ -23,7 +23,7 @@ class Client
     @timeout_in_seconds = timeout_in_seconds
   end
 
-  # Checks if the provided Client ID and API Key are valid credentials by requestin from the RJMetrics API Sandbox.
+  # Checks if the provided Client ID and API Key are valid credentials by requesting from the RJMetrics API Sandbox.
   def authenticated?
     test_data = {:keys => [:id], :id => 1}
     begin
