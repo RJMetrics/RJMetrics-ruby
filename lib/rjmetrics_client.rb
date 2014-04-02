@@ -3,9 +3,14 @@ class RJMetricsClient
   def initialize(client_id, api_key, timeout_in_seconds = 10)
     @client = Client.new(client_id, api_key, timeout_in_seconds)
 
-    if not @client.authenticated?
+    if not authenticated?
       raise Client::UnableToConnectException, "Connection failed. Please double check your credentials."
     end
+  end
+
+  # Validates credentials by making a request to the RJMetrics API Sandbox.
+  def authenticated?
+    return @client.authenticated?
   end
 
   # Sends data to RJMetrics Data Import API.
