@@ -220,22 +220,22 @@
       <pre class="lines">
 
 
-3
-4
 5
 6
 7
 8
-9</pre>
+9
+10
+11</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/rjmetrics_client.rb', line 3</span>
+      <pre class="code"><span class="info file"># File 'lib/rjmetrics_client.rb', line 5</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client_id'>client_id</span><span class='comma'>,</span> <span class='id identifier rubyid_api_key'>api_key</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout_in_seconds'>timeout_in_seconds</span> <span class='op'>=</span> <span class='int'>10</span><span class='rparen'>)</span>
-  <span class='ivar'>@client</span> <span class='op'>=</span> <span class='const'>Client</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_client_id'>client_id</span><span class='comma'>,</span> <span class='id identifier rubyid_api_key'>api_key</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout_in_seconds'>timeout_in_seconds</span><span class='rparen'>)</span>
+  <span class='ivar'>@client</span> <span class='op'>=</span> <span class='const'>RJMetrics</span><span class='op'>::</span><span class='const'>Client</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_client_id'>client_id</span><span class='comma'>,</span> <span class='id identifier rubyid_api_key'>api_key</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout_in_seconds'>timeout_in_seconds</span><span class='rparen'>)</span>
 
   <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_authenticated?'>authenticated?</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Client</span><span class='op'>::</span><span class='const'>UnableToConnectException</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Connection failed. Please double check your credentials.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RJMetrics</span><span class='op'>::</span><span class='const'>Client</span><span class='op'>::</span><span class='const'>UnableToConnectException</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Connection failed. Please double check your credentials.</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -289,12 +289,12 @@
       <pre class="lines">
 
 
-12
-13
-14</pre>
+14
+15
+16</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/rjmetrics_client.rb', line 12</span>
+      <pre class="code"><span class="info file"># File 'lib/rjmetrics_client.rb', line 14</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_authenticated?'>authenticated?</span>
   <span class='kw'>return</span> <span class='ivar'>@client</span><span class='period'>.</span><span class='id identifier rubyid_authenticated?'>authenticated?</span>
@@ -384,12 +384,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+23
+24
+25</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/rjmetrics_client.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/rjmetrics_client.rb', line 23</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_pushData'>pushData</span><span class='lparen'>(</span><span class='id identifier rubyid_table_name'>table_name</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
   <span class='ivar'>@client</span><span class='period'>.</span><span class='id identifier rubyid_pushData'>pushData</span><span class='lparen'>(</span><span class='id identifier rubyid_table_name'>table_name</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
@@ -404,7 +404,7 @@
 </div>
 
     <div id="footer">
-  Generated on Thu Apr  3 10:07:40 2014 by
+  Generated on Thu Apr  3 15:19:45 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.3 (ruby-2.0.0).
 </div>

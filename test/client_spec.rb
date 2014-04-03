@@ -1,24 +1,39 @@
 require 'rspec'
+require 'rjmetrics_client'
 require 'rjmetrics-client/client'
 require 'json'
 
 VALID_CLIENT_ID = 12
 VALID_API_KEY = "apiKey"
-VALID_TIMEOUT = 5
-SANDBOX_BASE = "https://sandbox-connect.rjmetrics.com/v2"
-API_BASE = "https://connect.rjmetrics.com/v2"
 
+describe RJMetricsClient do
+  describe "#new" do
+    context "with improper credentials" do
+      it "will raise an exception" do
+        data = Array.new(1,RJMetrics::ImportData.new(1))
+        table_name = "test"
 
-describe Client do
+        RestClient.should_receive(:post)
+        .with(
+          "#{RJMetrics::Client::SANDBOX_BASE}/client/#{VALID_CLIENT_ID}/table/#{table_name}/data?apikey=#{VALID_API_KEY}",
+          data.to_json,
+            {:content_type => :json,
+              :accept => :json,
+              :timeout => RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS})
+          .and_raise(RestClient::Exception.new({:code => 500, :message => "Server Error", :reasons => "Something went wrong on RJMetrics' end."}.to_json, 500))
 
-  before(:each) do
-    RestClient = double.stub(:post)
+        expect{ RJMetricsClient.new(VALID_CLIENT_ID, VALID_API_KEY) }.to raise_error(RJMetrics::Client::UnableToConnectException)
+      end
+    end
   end
+end
+
+describe RJMetrics::Client do
 
   describe "#new" do
     context "with valid arguments" do
       it "will create a RJMetricsClient" do
-        expect(Client.new(VALID_CLIENT_ID, VALID_API_KEY, VALID_TIMEOUT).class).to eq(Client)
+        expect(RJMetrics::Client.new(VALID_CLIENT_ID, VALID_API_KEY, RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS).class).to eq(RJMetrics::Client)
       end
     end
 
@@ -27,75 +42,94 @@ describe Client do
         invalid_client_ids = [-1, 0, 10.1, "six", nil]
         invalid_api_keys = [10, nil]
         invalid_timeouts = [-1, 0, 5.6, "seven", nil]
+        valid_timeout = RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS
 
-        invalid_client_ids.map { |client_id| expect{ Client.new(client_id, VALID_API_KEY, VALID_TIMEOUT) }.to raise_error(ArgumentError) }
-        invalid_api_keys.map { |api_key| expect{ Client.new(VALID_CLIENT_ID, api_key, VALID_TIMEOUT) }.to raise_error(ArgumentError) }
-        invalid_timeouts.map { |timeout| expect{ Client.new(VALID_CLIENT_ID, VALID_API_KEY, timeout) }.to raise_error(ArgumentError) }
+        invalid_client_ids.map { |client_id| expect{ RJMetrics::Client.new(client_id, VALID_API_KEY, valid_timeout) }.to raise_error(ArgumentError) }
+        invalid_api_keys.map { |api_key| expect{ RJMetrics::Client.new(VALID_CLIENT_ID, api_key, valid_timeout) }.to raise_error(ArgumentError) }
+        invalid_timeouts.map { |timeout| expect{ RJMetrics::Client.new(VALID_CLIENT_ID, VALID_API_KEY, timeout) }.to raise_error(ArgumentError) }
+
       end
     end
-  end
 
-  describe "#authenticated" do
-    context "with valid credentials" do
-      it "will return true" do
-        client = Client.new(VALID_CLIENT_ID, VALID_API_KEY, VALID_TIMEOUT)
+    describe "#authenticated" do
+      context "with valid credentials" do
+        it "will return true" do
+          client = RJMetrics::Client.new(VALID_CLIENT_ID, VALID_API_KEY, RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS)
 
-        authenticate_table_name = "test"
-        authenticate_data = Array.new(1, ImportData.new(1))
+          authenticate_table_name = "test"
+          authenticate_data = Array.new(1, RJMetrics::ImportData.new(1))
 
-        RestClient.should_receive(:post)
-        .with(
-          "#{SANDBOX_BASE}/client/#{VALID_CLIENT_ID}/table/#{authenticate_table_name}/data?apikey=#{VALID_API_KEY}",
-          authenticate_data.to_json,
-          {:content_type => :json,
-            :accept => :json,
-            :timeout => VALID_TIMEOUT})
-          .and_return("{\"code:\" 200, \"message\": \"created\"}")
+          RestClient.should_receive(:post)
+          .with(
+            "#{RJMetrics::Client::SANDBOX_BASE}/client/#{VALID_CLIENT_ID}/table/#{authenticate_table_name}/data?apikey=#{VALID_API_KEY}",
+            authenticate_data.to_json,
+              {:content_type => :json,
+                :accept => :json,
+                :timeout => RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS})
+            .and_return("{\"code:\" 200, \"message\": \"created\"}")
 
-        client.authenticated?.should eq(true)
+            client.authenticated?.should eq(true)
+        end
       end
     end
-  end
 
-  describe "#pushData" do
-    context "with valid arguments" do
-      before(:each) do
-        @client = Client.new(VALID_CLIENT_ID, VALID_API_KEY, VALID_TIMEOUT)
-        @table_name = "table"
-      end
+    describe "#pushData" do
+      context "with valid arguments" do
+        before(:each) do
+          @client = RJMetrics::Client.new(VALID_CLIENT_ID, VALID_API_KEY, RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS)
+          @table_name = "table"
+        end
 
-      it "will return a success response per data point" do
-        data = (ImportData.new(1)..ImportData.new(3)).to_a
+        it "will return a success response per data point" do
+          data = (RJMetrics::ImportData.new(1)..RJMetrics::ImportData.new(3)).to_a
 
-        RestClient.should_receive(:post)
-        .with(
-          "#{API_BASE}/client/#{VALID_CLIENT_ID}/table/#{@table_name}/data?apikey=#{VALID_API_KEY}",
-          data.to_json,
-          {:content_type => :json,
-            :accept => :json,
-            :timeout => VALID_TIMEOUT})
-          .exactly(1).times
-          .and_return({:code => 200, :message => "created"}.to_json)
+          RestClient.should_receive(:post)
+          .with(
+            "#{RJMetrics::Client::API_BASE}/client/#{VALID_CLIENT_ID}/table/#{@table_name}/data?apikey=#{VALID_API_KEY}",
+            data.to_json,
+              {:content_type => :json,
+                :accept => :json,
+                :timeout => RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS})
+            .exactly(1).times
+            .and_return({:code => 200, :message => "created"}.to_json)
 
-        @client.pushData(@table_name, data).should eq(Array.new(1, {:code => 200, :message => "created"}.to_json))
-      end
+            @client.pushData(@table_name, data).should eq(Array.new(1, {:code => 200, :message => "created"}.to_json))
+        end
 
-      it "will push data in batches" do
-        number_of_data_points = Client::BATCH_SIZE * 10 + 1
-        data = (ImportData.new(1)..ImportData.new(number_of_data_points)).to_a
+        it "will push data in batches" do
+          number_of_data_points = RJMetrics::Client::BATCH_SIZE * 10 + 1
+          data = (RJMetrics::ImportData.new(1)..RJMetrics::ImportData.new(number_of_data_points)).to_a
 
-        RestClient.should_receive(:post)
-        .with(
-          "#{API_BASE}/client/#{VALID_CLIENT_ID}/table/#{@table_name}/data?apikey=#{VALID_API_KEY}",
-          anything,
-          {:content_type => :json,
-            :accept => :json,
-            :timeout => VALID_TIMEOUT})
-          .exactly(11).times
-          .and_return({:code => 200, :message => "created"}.to_json)
+          RestClient.should_receive(:post)
+          .with(
+            "#{RJMetrics::Client::API_BASE}/client/#{VALID_CLIENT_ID}/table/#{@table_name}/data?apikey=#{VALID_API_KEY}",
+            anything,
+              {:content_type => :json,
+                :accept => :json,
+                :timeout => RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS})
+            .exactly(11).times
+            .and_return({:code => 200, :message => "created"}.to_json)
 
 
-        @client.pushData(@table_name, data).should eq(Array.new(11, {:code => 200, :message => "created"}.to_json))
+            @client.pushData(@table_name, data).should eq(Array.new(11, {:code => 200, :message => "created"}.to_json))
+        end
+
+        context "with server error" do
+          it "it will raise an exception" do
+            data = (RJMetrics::ImportData.new(1)..RJMetrics::ImportData.new(3)).to_a
+
+            RestClient.should_receive(:post)
+            .with(
+              "#{RJMetrics::Client::API_BASE}/client/#{VALID_CLIENT_ID}/table/#{@table_name}/data?apikey=#{VALID_API_KEY}",
+              data.to_json,
+                {:content_type => :json,
+                  :accept => :json,
+                  :timeout => RJMetrics::Client::DEFAULT_TIMEOUT_SECONDS})
+              .and_raise(RestClient::Exception.new({:code => 500, :message => "Server Error", :reasons => "Something went wrong on RJMetrics' end."}.to_json, 500))
+
+              expect { @client.pushData(@table_name, data) }.to raise_error(RJMetrics::Client::InvalidRequestException)
+          end
+        end
       end
     end
 
@@ -107,7 +141,7 @@ describe Client do
         invalid_table_names = [["name"], 5, {:name => "table_name"}, nil]
         invalid_urls = [5, ["url"], {:url => "url"}]
 
-        client = Client.new(VALID_CLIENT_ID, VALID_API_KEY)
+        client = RJMetrics::Client.new(VALID_CLIENT_ID, VALID_API_KEY)
 
         invalid_datas.map { |data_point| expect{ client.pushData(valid_table_name, data_point) }.to raise_error(ArgumentError) }
         invalid_table_names.map { |table_name| expect{ client.pushData(table_name, valid_data) }.to raise_error(ArgumentError) }
@@ -117,30 +151,32 @@ describe Client do
   end
 end
 
-class ImportData
-  include Comparable
-  attr :n
-  def initialize(n)
-    @n = n
-  end
+module RJMetrics
+  class ImportData
+    include Comparable
+    attr :n
+    def initialize(n)
+      @n = n
+    end
 
-  def succ
-    ImportData.new(@n + 1)
-  end
+    def succ
+      ImportData.new(@n + 1)
+    end
 
-  def to_s
-    self.inspect.to_s
-  end
+    def to_s
+      self.inspect.to_s
+    end
 
-  def <=>(other)
-    @n <=> other.n
-  end
+    def <=>(other)
+      @n <=> other.n
+    end
 
-  def inspect
-    {:keys => [:id], :id => @n}
-  end
+    def inspect
+      {:keys => [:id], :id => @n}
+    end
 
-  def to_json(options = nil)
-    self.inspect.to_json(options)
+    def to_json(options = nil)
+      self.inspect.to_json(options)
+    end
   end
 end
