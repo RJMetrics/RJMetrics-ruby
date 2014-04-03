@@ -6,10 +6,11 @@ module RJMetrics
 
   class Client
 
+
    # default RJMetrics Data Import API url
-   API_BASE = "http://paws:3000/v2"
+   API_BASE = "https://connect.rjmetrics.com/v2"
    # RJMetrics Sandbox API url
-   SANDBOX_BASE = "http://paws:3000/v2"
+   SANDBOX_BASE = "https://sandbox-connect.rjmetrics.com/v2"
    # Datapoints to push at a time
    BATCH_SIZE = 100
    # Timout Seconds
