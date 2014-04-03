@@ -128,7 +128,7 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>http://paws:3000/v2</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://connect.rjmetrics.com/v2</span><span class='tstring_end'>&quot;</span></span></pre></dd>
       
         <dt id="SANDBOX_BASE-constant" class="">SANDBOX_BASE =
           <div class="docstring">
@@ -144,7 +144,7 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>http://paws:3000/v2</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://sandbox-connect.rjmetrics.com/v2</span><span class='tstring_end'>&quot;</span></span></pre></dd>
       
         <dt id="BATCH_SIZE-constant" class="">BATCH_SIZE =
           <div class="docstring">
@@ -358,15 +358,15 @@ an ArgumentError.</p>
       <pre class="lines">
 
 
-23
 24
 25
 26
 27
-28</pre>
+28
+29</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/rjmetrics-client/client.rb', line 23</span>
+      <pre class="code"><span class="info file"># File 'lib/rjmetrics-client/client.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client_id'>client_id</span><span class='comma'>,</span> <span class='id identifier rubyid_api_key'>api_key</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout_in_seconds'>timeout_in_seconds</span> <span class='op'>=</span> <span class='const'>DEFAULT_TIMEOUT_SECONDS</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_validateConstructorArgs'>validateConstructorArgs</span><span class='lparen'>(</span><span class='id identifier rubyid_client_id'>client_id</span><span class='comma'>,</span> <span class='id identifier rubyid_api_key'>api_key</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout_in_seconds'>timeout_in_seconds</span><span class='rparen'>)</span>
@@ -426,7 +426,6 @@ requesting from the RJMetrics API Sandbox.</p>
       <pre class="lines">
 
 
-31
 32
 33
 34
@@ -434,10 +433,11 @@ requesting from the RJMetrics API Sandbox.</p>
 36
 37
 38
-39</pre>
+39
+40</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/rjmetrics-client/client.rb', line 31</span>
+      <pre class="code"><span class="info file"># File 'lib/rjmetrics-client/client.rb', line 32</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_authenticated?'>authenticated?</span>
   <span class='id identifier rubyid_test_data'>test_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='symbol'>:keys</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='symbol'>:id</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='rbrace'>}</span>
@@ -551,7 +551,6 @@ requesting from the RJMetrics API Sandbox.</p>
       <pre class="lines">
 
 
-47
 48
 49
 50
@@ -564,10 +563,11 @@ requesting from the RJMetrics API Sandbox.</p>
 57
 58
 59
-60</pre>
+60
+61</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/rjmetrics-client/client.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'lib/rjmetrics-client/client.rb', line 48</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_pushData'>pushData</span><span class='lparen'>(</span><span class='id identifier rubyid_table_name'>table_name</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_url'>url</span> <span class='op'>=</span> <span class='const'>API_BASE</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_responses'>responses</span> <span class='op'>=</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
@@ -593,7 +593,7 @@ requesting from the RJMetrics API Sandbox.</p>
 </div>
 
     <div id="footer">
-  Generated on Thu Apr  3 15:19:45 2014 by
+  Generated on Thu Apr  3 15:26:35 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.3 (ruby-2.0.0).
 </div>
