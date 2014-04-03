@@ -80,8 +80,8 @@ describe Client do
         @client.pushData(@table_name, data).should eq(Array.new(1, {:code => 200, :message => "created"}.to_json))
       end
 
-      it "will push data in batches of 100" do
-        number_of_data_points = 100 * 10 + 1
+      it "will push data in batches" do
+        number_of_data_points = Client::BATCH_SIZE * 10 + 1
         data = (ImportData.new(1)..ImportData.new(number_of_data_points)).to_a
 
         RestClient.should_receive(:post)
