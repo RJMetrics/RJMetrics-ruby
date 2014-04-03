@@ -1,5 +1,6 @@
 require 'rest_client'
 require 'json'
+require 'enumerator'
 
 class Client
 
@@ -7,6 +8,8 @@ class Client
  API_BASE = "https://connect.rjmetrics.com/v2"
  # RJMetrics Sandbox API url
  SANDBOX_BASE = "https://sandbox-connect.rjmetrics.com/v2"
+ # Datapoints to push at a time
+ BATCH_SIZE = 100
 
   # Constructs a Client instance if it receives valid arguments or will raise an ArgumentError.
   #
@@ -20,7 +23,7 @@ class Client
     @timeout_in_seconds = timeout_in_seconds
   end
 
-  # Checks if the provided Client ID and API Key are valid credentials by requestin from the RJMetrics API Sandbox.
+  # Checks if the provided Client ID and API Key are valid credentials by requesting from the RJMetrics API Sandbox.
   def authenticated?
     test_data = {:keys => [:id], :id => 1}
     begin
@@ -31,20 +34,25 @@ class Client
     return true
   end
 
-  # Sends data to RJMetrics Data Import API.
+  # Sends data to RJMetrics Data Import API in batches of 100.
   #
   # @param table_name [String] the table name you wish to store the data
   # @param data [Hashamp] or Array of Hashmaps of data points that will get sent
   # @param url [String] Import API url or nil
   # @return [Array] results of each request to RJMetrics Data Import API
   def pushData(table_name, data, url = API_BASE)
+    responses = Array.new
     validatePushDataArgs(table_name, data, url)
 
     if not data.is_a? Array
       data = Array.[](data)
     end
 
-    return data.map{ |data_point| makePushDataAPICall(table_name, data_point, url) }
+    data.each_slice(BATCH_SIZE) {|batch_data|
+      puts "pushing batch of #{batch_data.count} data points"
+      responses << makePushDataAPICall(table_name, batch_data, url)
+    }
+    return responses
   end
 
   private
