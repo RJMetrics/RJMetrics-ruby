@@ -20,7 +20,7 @@ module RJMetrics
     #
     # @param client_id [Integer] your RJMetrics Client ID
     # @param api_key [String] your RJMetrics API Key
-    # @param timeout_in_seconds [Integer] seconds to wait for API responses or nil
+    # @param timeout_in_seconds [Integer] seconds to wait for API responses
     def initialize(client_id, api_key, timeout_in_seconds = DEFAULT_TIMEOUT_SECONDS)
       validateConstructorArgs(client_id, api_key, timeout_in_seconds)
       @client_id = client_id
@@ -43,7 +43,7 @@ module RJMetrics
     #
     # @param table_name [String] the table name you wish to store the data
     # @param data [Hashamp] or Array of Hashmaps of data points that will get sent
-    # @param url [String] Import API url or nil
+    # @param url [String] Import API url
     # @return [Array] results of each request to RJMetrics Data Import API
     def pushData(table_name, data, url = API_BASE)
       responses = Array.new
