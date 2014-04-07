@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'rest_client'
 require 'json'
 require 'enumerator'
@@ -100,6 +102,7 @@ class Client
       )
       return response
     rescue RestClient::Exception => error
+      puts "RestClientError: #{error.class}, With response: #{error.response}" # put here as sometimes the json parsing does not work
       response = JSON.parse(error.response)
       raise InvalidRequestException,
         "The Import API returned: #{response['code']} #{response['message']}. Reasons: #{response['reasons']}"
