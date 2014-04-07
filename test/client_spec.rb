@@ -87,10 +87,8 @@ describe Client do
 
   describe "#pushData" do
     context "with valid arguments" do
-      before(:each) do
-        @client = Client.new(valid_client_id, valid_api_key, valid_timeout)
-        @table_name = "table"
-      end
+      let(:client) {Client.new(valid_client_id, valid_api_key, valid_timeout)}
+      let(:table_name) {"table"}
 
       let(:data) {data = (import_data_klass.new(1)..import_data_klass.new(number_of_data_points)).to_a}
       let(:number_of_data_points) { 3}
@@ -99,7 +97,7 @@ describe Client do
         it "will return a success response per data point" do
           expect(RestClient).to receive(:post)
           .with(
-            "#{api_base}/client/#{valid_client_id}/table/#{@table_name}/data?apikey=#{valid_api_key}",
+            "#{api_base}/client/#{valid_client_id}/table/#{table_name}/data?apikey=#{valid_api_key}",
             data.to_json,
             {:content_type => :json,
               :accept => :json,
@@ -107,7 +105,7 @@ describe Client do
             .exactly(1).times
             .and_return({:code => 200, :message => "created"}.to_json)
 
-          @client.pushData(@table_name, data).should eq(Array.new(1, {:code => 200, :message => "created"}.to_json))
+          expect(client.pushData(table_name, data)).to eq(Array.new(1, {:code => 200, :message => "created"}.to_json))
         end
       end
 
@@ -116,7 +114,7 @@ describe Client do
         it "will push data in batches" do
           expect(RestClient).to receive(:post)
           .with(
-            "#{api_base}/client/#{valid_client_id}/table/#{@table_name}/data?apikey=#{valid_api_key}",
+            "#{api_base}/client/#{valid_client_id}/table/#{table_name}/data?apikey=#{valid_api_key}",
             anything,
             {:content_type => :json,
               :accept => :json,
@@ -125,10 +123,24 @@ describe Client do
             .and_return({:code => 200, :message => "created"}.to_json)
 
 
-          @client.pushData(@table_name, data).should eq(Array.new(11, {:code => 200, :message => "created"}.to_json))
+          expect(client.pushData(table_name, data)).to eq(Array.new(11, {:code => 200, :message => "created"}.to_json))
         end
       end
 
+      context "when the server cuts the connection" do
+        it "will raise an InvalidResponseException" do
+          expect(RestClient).to receive(:post)
+          .with(
+            "#{api_base}/client/#{valid_client_id}/table/#{table_name}/data?apikey=#{valid_api_key}",
+            data.to_json,
+            {:content_type => :json,
+              :accept => :json,
+              :timeout => valid_timeout})
+          .and_raise(RestClient::ServerBrokeConnection.new)
+
+          expect{client.pushData(table_name, data)}.to raise_error(Client::InvalidResponseException)
+        end
+      end
     end
 
     context "with invalid arguments" do
