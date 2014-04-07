@@ -56,7 +56,6 @@ module RJMetrics
       end
 
       data.each_slice(BATCH_SIZE) {|batch_data|
-        puts "pushing batch of #{batch_data.count} data points"
         responses << makePushDataAPICall(table_name, batch_data, url)
       }
       return responses
