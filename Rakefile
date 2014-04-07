@@ -6,7 +6,7 @@ desc "Build Gem with development dependencies"
 task :build do
   system("gem uninstall rjmetrics-client")
   system("gem build rjmetrics_client.gemspec")
-  system("gem install rjmetrics-client-0.3.0.gem --development")
+  system("gem install rjmetrics-client --development")
 end
 
 desc "Run RSpec unit tests"
