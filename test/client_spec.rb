@@ -1,24 +1,52 @@
+# encoding: utf-8
+
 require 'rspec'
 require 'rjmetrics-client/client'
 require 'json'
 
-VALID_CLIENT_ID = 12
-VALID_API_KEY = "apiKey"
-VALID_TIMEOUT = 5
-SANDBOX_BASE = "https://sandbox-connect.rjmetrics.com/v2"
-API_BASE = "https://connect.rjmetrics.com/v2"
-
 
 describe Client do
 
-  before(:each) do
-    RestClient = double.stub(:post)
+  let(:valid_client_id) { 12 }
+  let(:valid_api_key) { "apiKey" }
+  let(:valid_timeout) { 5 }
+  let(:sandbox_base) { "https://sandbox-connect.rjmetrics.com/v2" }
+  let(:api_base) { "https://connect.rjmetrics.com/v2" }
+
+  let(:import_data_klass) do
+    Class.new do
+      include Comparable
+      attr :n
+      def initialize(n)
+        @n = n
+      end
+
+      def succ
+        self.class.new(@n + 1)
+      end
+
+      def to_s
+        self.inspect.to_s
+      end
+
+      def <=>(other)
+        @n <=> other.n
+      end
+
+      def inspect
+        {:keys => [:id], :id => @n}
+      end
+
+      def to_json(options = nil)
+        self.inspect.to_json(options)
+      end
+    end
   end
 
   describe "#new" do
     context "with valid arguments" do
       it "will create a RJMetricsClient" do
-        expect(Client.new(VALID_CLIENT_ID, VALID_API_KEY, VALID_TIMEOUT).class).to eq(Client)
+        expect(Client.new(valid_client_id, valid_api_key, valid_timeout).class).to eq(Client)
       end
     end
 
@@ -28,9 +56,9 @@ describe Client do
         invalid_api_keys = [10, nil]
         invalid_timeouts = [-1, 0, 5.6, "seven", nil]
 
-        invalid_client_ids.map { |client_id| expect{ Client.new(client_id, VALID_API_KEY, VALID_TIMEOUT) }.to raise_error(ArgumentError) }
-        invalid_api_keys.map { |api_key| expect{ Client.new(VALID_CLIENT_ID, api_key, VALID_TIMEOUT) }.to raise_error(ArgumentError) }
-        invalid_timeouts.map { |timeout| expect{ Client.new(VALID_CLIENT_ID, VALID_API_KEY, timeout) }.to raise_error(ArgumentError) }
+        invalid_client_ids.map { |client_id| expect{ Client.new(client_id, valid_api_key, valid_timeout) }.to raise_error(ArgumentError) }
+        invalid_api_keys.map { |api_key| expect{ Client.new(valid_client_id, api_key, valid_timeout) }.to raise_error(ArgumentError) }
+        invalid_timeouts.map { |timeout| expect{ Client.new(valid_client_id, valid_api_key, timeout) }.to raise_error(ArgumentError) }
       end
     end
   end
@@ -38,18 +66,18 @@ describe Client do
   describe "#authenticated" do
     context "with valid credentials" do
       it "will return true" do
-        client = Client.new(VALID_CLIENT_ID, VALID_API_KEY, VALID_TIMEOUT)
+        client = Client.new(valid_client_id, valid_api_key, valid_timeout)
 
         authenticate_table_name = "test"
-        authenticate_data = Array.new(1, ImportData.new(1))
+        authenticate_data = Array.new(1, import_data_klass.new(1))
 
-        RestClient.should_receive(:post)
+        expect(RestClient).to receive(:post)
         .with(
-          "#{SANDBOX_BASE}/client/#{VALID_CLIENT_ID}/table/#{authenticate_table_name}/data?apikey=#{VALID_API_KEY}",
+          "#{sandbox_base}/client/#{valid_client_id}/table/#{authenticate_table_name}/data?apikey=#{valid_api_key}",
           authenticate_data.to_json,
           {:content_type => :json,
             :accept => :json,
-            :timeout => VALID_TIMEOUT})
+            :timeout => valid_timeout})
           .and_return("{\"code:\" 200, \"message\": \"created\"}")
 
         client.authenticated?.should eq(true)
@@ -59,43 +87,59 @@ describe Client do
 
   describe "#pushData" do
     context "with valid arguments" do
-      before(:each) do
-        @client = Client.new(VALID_CLIENT_ID, VALID_API_KEY, VALID_TIMEOUT)
-        @table_name = "table"
+      let(:client) {Client.new(valid_client_id, valid_api_key, valid_timeout)}
+      let(:table_name) {"table"}
+
+      let(:data) {data = (import_data_klass.new(1)..import_data_klass.new(number_of_data_points)).to_a}
+      let(:number_of_data_points) { 3}
+
+      context "with less data points than the batch size" do
+        it "will return a success response per data point" do
+          expect(RestClient).to receive(:post)
+          .with(
+            "#{api_base}/client/#{valid_client_id}/table/#{table_name}/data?apikey=#{valid_api_key}",
+            data.to_json,
+            {:content_type => :json,
+              :accept => :json,
+              :timeout => valid_timeout})
+            .exactly(1).times
+            .and_return({:code => 200, :message => "created"}.to_json)
+
+          expect(client.pushData(table_name, data)).to eq(Array.new(1, {:code => 200, :message => "created"}.to_json))
+        end
       end
 
-      it "will return a success response per data point" do
-        data = (ImportData.new(1)..ImportData.new(3)).to_a
+      context "with more data points than the batch size" do
+        let(:number_of_data_points) { Client::BATCH_SIZE * 10 + 1 }
+        it "will push data in batches" do
+          expect(RestClient).to receive(:post)
+          .with(
+            "#{api_base}/client/#{valid_client_id}/table/#{table_name}/data?apikey=#{valid_api_key}",
+            anything,
+            {:content_type => :json,
+              :accept => :json,
+              :timeout => valid_timeout})
+            .exactly(11).times
+            .and_return({:code => 200, :message => "created"}.to_json)
 
-        RestClient.should_receive(:post)
-        .with(
-          "#{API_BASE}/client/#{VALID_CLIENT_ID}/table/#{@table_name}/data?apikey=#{VALID_API_KEY}",
-          data.to_json,
-          {:content_type => :json,
-            :accept => :json,
-            :timeout => VALID_TIMEOUT})
-          .exactly(1).times
-          .and_return({:code => 200, :message => "created"}.to_json)
 
-        @client.pushData(@table_name, data).should eq(Array.new(1, {:code => 200, :message => "created"}.to_json))
+          expect(client.pushData(table_name, data)).to eq(Array.new(11, {:code => 200, :message => "created"}.to_json))
+        end
       end
 
-      it "will push data in batches" do
-        number_of_data_points = Client::BATCH_SIZE * 10 + 1
-        data = (ImportData.new(1)..ImportData.new(number_of_data_points)).to_a
+      context "when the server cuts the connection" do
+        it "will raise an InvalidResponseException" do
+          expect(RestClient).to receive(:post)
+          .with(
+            "#{api_base}/client/#{valid_client_id}/table/#{table_name}/data?apikey=#{valid_api_key}",
+            data.to_json,
+            {:content_type => :json,
+              :accept => :json,
+              :timeout => valid_timeout})
+          .and_raise(RestClient::ServerBrokeConnection.new)
 
-        RestClient.should_receive(:post)
-        .with(
-          "#{API_BASE}/client/#{VALID_CLIENT_ID}/table/#{@table_name}/data?apikey=#{VALID_API_KEY}",
-          anything,
-          {:content_type => :json,
-            :accept => :json,
-            :timeout => VALID_TIMEOUT})
-          .exactly(11).times
-          .and_return({:code => 200, :message => "created"}.to_json)
-
-
-        @client.pushData(@table_name, data).should eq(Array.new(11, {:code => 200, :message => "created"}.to_json))
+          expect{client.pushData(table_name, data)}.to raise_error(Client::InvalidResponseException)
+        end
       end
     end
 
@@ -107,7 +151,7 @@ describe Client do
         invalid_table_names = [["name"], 5, {:name => "table_name"}, nil]
         invalid_urls = [5, ["url"], {:url => "url"}]
 
-        client = Client.new(VALID_CLIENT_ID, VALID_API_KEY)
+        client = Client.new(valid_client_id, valid_api_key)
 
         invalid_datas.map { |data_point| expect{ client.pushData(valid_table_name, data_point) }.to raise_error(ArgumentError) }
         invalid_table_names.map { |table_name| expect{ client.pushData(table_name, valid_data) }.to raise_error(ArgumentError) }
@@ -117,30 +161,4 @@ describe Client do
   end
 end
 
-class ImportData
-  include Comparable
-  attr :n
-  def initialize(n)
-    @n = n
-  end
 
-  def succ
-    ImportData.new(@n + 1)
-  end
-
-  def to_s
-    self.inspect.to_s
-  end
-
-  def <=>(other)
-    @n <=> other.n
-  end
-
-  def inspect
-    {:keys => [:id], :id => @n}
-  end
-
-  def to_json(options = nil)
-    self.inspect.to_json(options)
-  end
-end
