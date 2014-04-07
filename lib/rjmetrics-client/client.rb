@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'rest_client'
 require 'json'
 require 'enumerator'
@@ -105,9 +107,14 @@ module RJMetrics
         )
         return response
       rescue RestClient::Exception => error
-        response = JSON.parse(error.response)
-        raise InvalidRequestException,
-          "The Import API returned: #{response['code']} #{response['message']}. Reasons: #{response['reasons']}"
+        begin
+          response = JSON.parse(error.response)
+          raise InvalidRequestException,
+            "The Import API returned: #{response['code']} #{response['message']}. Reasons: #{response['reasons']}"
+        rescue JSON::ParserError, TypeError => json_parse_error
+          raise InvalidResponseException,
+            "RestClientError: #{error.class}, With response: #{error.response}"
+        end
       end
     end
 
@@ -115,5 +122,8 @@ module RJMetrics
     end
     class InvalidRequestException < RuntimeError
     end
+    class InvalidResponseException < RuntimeError
+    end
+
   end
 end
