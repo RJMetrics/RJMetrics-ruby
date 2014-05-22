@@ -112,7 +112,7 @@ module RJMetrics
             "The Import API returned: #{response['code']} #{response['message']}. Reasons: #{response['reasons']}"
         rescue JSON::ParserError, TypeError => json_parse_error
           raise InvalidResponseException,
-            "RestClientError: #{error.class}, With response: #{error.response}"
+            "RestClientError: #{error.class}\n Message: #{error.message}\n Response Code: #{error.http_code}\n Full Response: #{error.response}"
         end
       end
     end
