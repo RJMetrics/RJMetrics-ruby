@@ -108,6 +108,11 @@ module RJMetrics
       rescue RestClient::Exception => error
         begin
           response = JSON.parse(error.response)
+
+          unless response
+            raise InvalidRequestException, "The Import API returned: #{error.http_code} #{error.message}"
+          end
+
           raise InvalidRequestException,
             "The Import API returned: #{response['code']} #{response['message']}. Reasons: #{response['reasons']}"
         rescue JSON::ParserError, TypeError => json_parse_error
