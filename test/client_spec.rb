@@ -154,6 +154,18 @@ describe RJMetrics::Client do
           expect{client.pushData(table_name, data)}.to raise_error(RJMetrics::Client::InvalidResponseException)
         end
       end
+
+      context "with no error.response to parse" do
+        it "raise an InvalidRequestException" do
+          expect(RestClient).to receive(:post)
+          .and_raise(RestClient::Exception.new)
+
+          expect(JSON).to receive(:parse)
+          .and_return(nil)
+
+          expect{client.pushData(table_name, data)}.to raise_error(RJMetrics::Client::InvalidRequestException)
+        end
+      end
     end
 
     context "with invalid arguments" do
