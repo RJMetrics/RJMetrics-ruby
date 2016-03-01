@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rjmetrics-client (0.5.2)
+    rjmetrics-client (0.6.0)
       json (>= 1.7.7)
       rest-client (>= 1.6.7)
 
