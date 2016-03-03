@@ -90,8 +90,9 @@ module RJMetrics
       end
     end
 
+    # Authenticates with the RJMetrics Data Import API
     def makeAuthAPICall(url = API_BASE)
-      request_url = "#{url}/client/#{@client_id}/authorize?apikey=#{@api_key}"
+      request_url = "#{url}/client/#{@client_id}/authenticate?apikey=#{@api_key}"
       begin
         response = RestClient.get(request_url)
         return response
