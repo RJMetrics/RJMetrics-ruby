@@ -72,17 +72,11 @@ describe RJMetrics::Client do
         authenticate_table_name = "test"
         authenticate_data = Array.new(1, import_data_klass.new(1))
 
-        expect(RestClient).to receive(:post)
+        expect(RestClient).to receive(:get)
         .with(
-          "#{sandbox_base}/client/#{valid_client_id}/table/#{authenticate_table_name}/data?apikey=#{valid_api_key}",
-          authenticate_data.to_json,
-          {
-            :content_type => :json,
-            :accept => :json,
-            :timeout => valid_timeout
-          }
+          "#{sandbox_base}/client/#{valid_client_id}/authenticate?apikey=#{valid_api_key}",
         )
-        .and_return("{\"code:\" 200, \"message\": \"created\"}")
+        .and_return("{\"code:\" 200}")
 
         client.authenticated?.should eq(true)
       end
