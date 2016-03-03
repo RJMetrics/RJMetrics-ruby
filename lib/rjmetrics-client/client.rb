@@ -30,11 +30,10 @@ module RJMetrics
       @timeout_in_seconds = timeout_in_seconds
     end
 
-    # Checks if the provided Client ID and API Key are valid credentials by requesting from the RJMetrics API Sandbox.
+    # Checks if the provided Client ID and API Key are valid.
     def authenticated?
-      test_data = {:keys => [:id], :id => 1}
       begin
-        pushData("test", test_data, SANDBOX_BASE)
+        makeAuthAPICall()
       rescue InvalidRequestException
         return false
       end
@@ -88,6 +87,29 @@ module RJMetrics
 
       if not url.is_a? String
         raise ArgumentError, "Invalid url: '#{url}' -- must be a string."
+      end
+    end
+
+    # Authenticates with the RJMetrics Data Import API
+    def makeAuthAPICall(url = API_BASE)
+      request_url = "#{url}/client/#{@client_id}/authenticate?apikey=#{@api_key}"
+      begin
+        response = RestClient.get(request_url)
+        return response
+      rescue RestClient::Exception => error
+        begin
+          response = JSON.parse(error.response)
+
+          unless response
+            raise InvalidRequestException, "The Import API returned: #{error.http_code} #{error.message}"
+          end
+
+          raise InvalidRequestException,
+            "The Import API returned: #{response['code']} #{response['message']}. Reasons: #{response['reasons']}"
+        rescue JSON::ParserError, TypeError => json_parse_error
+          raise InvalidResponseException,
+            "RestClientError: #{error.class}\n Message: #{error.message}\n Response Code: #{error.http_code}\n Full Response: #{error.response}"
+        end
       end
     end
 

@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'rjmetrics-client'
-  s.version     = '0.5.2'
-  s.date        = '2014-04-07'
+  s.version     = '0.6.0'
+  s.date        = '2016-03-03'
   s.summary     = "RJMetrics Data Import API Client Library"
   s.description = "RJMetrics Data Import API Client Library"
   s.authors     = ["Owen Jones"]

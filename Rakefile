@@ -11,7 +11,7 @@ end
 
 desc "Run RSpec unit tests"
 task :test do
-  system("rspec test/client_spec.rb --format nested")
+  system("rspec test/client_spec.rb --format documentation")
 end
 
 desc "Generate docs"
